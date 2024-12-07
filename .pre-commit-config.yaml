@@ -1,16 +1,7 @@
 ---
+default_install_hook_types: [pre-commit]
 repos:
-  - repo: local
+  - repo: https://github.com/juancarlosjr97/pre-commit-to-rule-them-all
+    rev: 1.0.1
     hooks:
-      - id: cargo-fmt
-        name: cargo fmt
-        description: Format Rust code using cargo fmt.
-        entry: cargo fmt --all
-        language: system
-        files: \.rs$
-        args: ["--"]
-  - repo: https://github.com/FeryET/pre-commit-rust
-    rev: v1.1.1
-    hooks:
-      - id: cargo-check
-      - id: clippy
+      - id: centralized-pre-commit-hooks-rust

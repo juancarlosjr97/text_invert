@@ -1,2 +1,3 @@
-# pre-commit-to-rule-them-all-rust-consumer
-pre-commit-to-rule-them-all-rust-consumer
+# Text Invert | CLI Tool
+
+This project shows how build and test a CLI tool using Rust.

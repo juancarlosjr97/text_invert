@@ -212,14 +212,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "809e8dc61f6de73b46c85f4c96486310fe304c434cfa43669d7b40f711150908"
 
 [[package]]
-name = "reverse_word_cli"
-version = "0.1.0"
-dependencies = [
- "assert_cmd",
- "clap",
-]
-
-[[package]]
 name = "serde"
 version = "1.0.215"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -261,6 +253,14 @@ name = "termtree"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3369f5ac52d5eb6ab48c6b4ffdc8efbcad6b89c765749064ba298f2c68a16a76"
+
+[[package]]
+name = "text_invert"
+version = "0.1.0"
+dependencies = [
+ "assert_cmd",
+ "clap",
+]
 
 [[package]]
 name = "unicode-ident"

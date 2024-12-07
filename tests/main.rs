@@ -2,13 +2,13 @@ use assert_cmd::Command;
 
 #[test]
 fn test_main_valid_input() {
-    let mut cmd = Command::cargo_bin("reverse_word_cli").unwrap();
+    let mut cmd = Command::cargo_bin("text_invert").unwrap();
     cmd.arg("--word=jcbd").assert().success().stdout("dbcj\n");
 }
 
 #[test]
 fn test_main_empty_input() {
-    let mut cmd = Command::cargo_bin("reverse_word_cli").unwrap();
+    let mut cmd = Command::cargo_bin("text_invert").unwrap();
     cmd.arg("--word")
         .assert()
         .failure()
