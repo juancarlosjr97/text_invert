@@ -1,10 +1,15 @@
 use clap::Parser;
+use std::thread;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
-    word: String,
+    #[arg(
+        short,
+        long,
+        help = "Word(s) to be reversed. It can be specified multiple times."
+    )]
+    word: Vec<String>,
 }
 
 fn reverse_word(word: &str) -> String {
@@ -22,12 +27,23 @@ fn run(word: &str) -> Result<String, String> {
 fn main() {
     let args = Args::parse();
 
-    match run(&args.word) {
-        Ok(reversed_word) => println!("{}", reversed_word),
-        Err(err) => {
-            eprintln!("{}", err);
-            std::process::exit(1);
-        }
+    let handles: Vec<_> = args
+        .word
+        .iter()
+        .map(|word| {
+            let word = word.clone();
+            thread::spawn(move || match run(&word) {
+                Ok(reversed_word) => println!("{}", reversed_word),
+                Err(err) => {
+                    eprintln!("{}", err);
+                    std::process::exit(1);
+                }
+            })
+        })
+        .collect();
+
+    for handle in handles {
+        handle.join().expect("Thread panicked");
     }
 }
 
@@ -59,11 +75,15 @@ mod tests {
             .arg("--")
             .arg("--word")
             .arg("jcbd")
+            .arg("--word")
+            .arg("1234")
             .output()
             .expect("Reverse the word successfully");
 
         assert!(output.status.success());
-        assert_eq!(String::from_utf8_lossy(&output.stdout).trim(), "dbcj");
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        assert!(output_str.contains("dbcj"));
+        assert!(output_str.contains("4321"));
     }
 
     #[test]
