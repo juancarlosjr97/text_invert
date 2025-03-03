@@ -2,6 +2,6 @@
 default_install_hook_types: [pre-commit]
 repos:
   - repo: https://github.com/juancarlosjr97/pre-commit-to-rule-them-all
-    rev: 0.4.0
+    rev: 0.4.1
     hooks:
       - id: centralized-pre-commit-hooks-rust
