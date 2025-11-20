@@ -7,21 +7,40 @@ struct Args {
     #[arg(
         short,
         long,
-        help = "Word(s) to be reversed. It can be specified multiple times."
+        help = "Word(s) to be reversed or checked for palindrome. It can be specified multiple times."
     )]
     word: Vec<String>,
+
+    #[arg(
+        short = 'p',
+        long = "palindrome",
+        help = "Check if the word(s) are palindromes instead of reversing."
+    )]
+    palindrome: bool,
 }
 
 fn reverse_word(word: &str) -> String {
     word.chars().rev().collect()
 }
 
-fn run(word: &str) -> Result<String, String> {
+fn is_palindrome(word: &str) -> bool {
+    let lower = word.to_lowercase();
+    lower.chars().eq(lower.chars().rev())
+}
+
+fn run(word: &str, palindrome: bool) -> Result<String, String> {
     if word.is_empty() {
         return Err("Error: The word cannot be empty.".to_string());
     }
-
-    Ok(reverse_word(word))
+    if palindrome {
+        if is_palindrome(word) {
+            Ok(format!("{} is a palindrome", word))
+        } else {
+            Ok(format!("{} is not a palindrome", word))
+        }
+    } else {
+        Ok(reverse_word(word))
+    }
 }
 
 fn main() {
@@ -32,8 +51,9 @@ fn main() {
         .iter()
         .map(|word| {
             let word = word.clone();
-            thread::spawn(move || match run(&word) {
-                Ok(reversed_word) => println!("{}", reversed_word),
+            let palindrome = args.palindrome;
+            thread::spawn(move || match run(&word, palindrome) {
+                Ok(output) => println!("{}", output),
                 Err(err) => {
                     eprintln!("{}", err);
                     std::process::exit(1);
@@ -61,11 +81,23 @@ mod tests {
     }
 
     #[test]
+    fn test_is_palindrome() {
+        assert!(is_palindrome("racecar"));
+        assert!(is_palindrome("RaceCar"));
+        assert!(is_palindrome("a"));
+        assert!(is_palindrome(""));
+        assert!(!is_palindrome("hello"));
+        assert!(!is_palindrome("rust"));
+    }
+
+    #[test]
     fn test_run() {
-        assert_eq!(run("hello").unwrap(), "olleh");
-        assert_eq!(run("rust").unwrap(), "tsur");
-        assert_eq!(run("").unwrap_err(), "Error: The word cannot be empty.");
-        assert_eq!(run("a").unwrap(), "a");
+        assert_eq!(run("hello", false).unwrap(), "olleh");
+        assert_eq!(run("rust", false).unwrap(), "tsur");
+        assert_eq!(run("", false).unwrap_err(), "Error: The word cannot be empty.");
+        assert_eq!(run("a", false).unwrap(), "a");
+        assert_eq!(run("racecar", true).unwrap(), "racecar is a palindrome");
+        assert_eq!(run("hello", true).unwrap(), "hello is not a palindrome");
     }
 
     #[test]
@@ -100,5 +132,32 @@ mod tests {
         assert!(
             String::from_utf8_lossy(&output.stderr).contains("Error: The word cannot be empty.")
         );
+    }
+
+    #[test]
+    fn test_main_palindrome_flag() {
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--")
+            .arg("--word")
+            .arg("racecar")
+            .arg("--palindrome")
+            .output()
+            .expect("Check palindrome");
+        assert!(output.status.success());
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        assert!(output_str.contains("racecar is a palindrome"));
+
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--")
+            .arg("--word")
+            .arg("hello")
+            .arg("-p")
+            .output()
+            .expect("Check not palindrome");
+        assert!(output.status.success());
+        let output_str = String::from_utf8_lossy(&output.stdout);
+        assert!(output_str.contains("hello is not a palindrome"));
     }
 }
