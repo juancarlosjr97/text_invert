@@ -24,8 +24,14 @@ fn reverse_word(word: &str) -> String {
 }
 
 fn is_palindrome(word: &str) -> bool {
-    let lower = word.to_lowercase();
-    lower.chars().eq(lower.chars().rev())
+    let chars: Vec<char> = word.chars().collect();
+    let len = chars.len();
+    for i in 0..len / 2 {
+        if chars[i].to_ascii_lowercase() != chars[len - 1 - i].to_ascii_lowercase() {
+            return false;
+        }
+    }
+    true
 }
 
 fn run(word: &str, palindrome: bool) -> Result<String, String> {
@@ -136,24 +142,14 @@ mod tests {
 
     #[test]
     fn test_main_palindrome_flag() {
-        let output = Command::new("cargo")
-            .arg("run")
-            .arg("--")
-            .arg("--word")
-            .arg("racecar")
-            .arg("--palindrome")
+        let output = setup_command(&["run", "--", "--word", "racecar", "--palindrome"])
             .output()
             .expect("Check palindrome");
         assert!(output.status.success());
         let output_str = String::from_utf8_lossy(&output.stdout);
         assert!(output_str.contains("racecar is a palindrome"));
 
-        let output = Command::new("cargo")
-            .arg("run")
-            .arg("--")
-            .arg("--word")
-            .arg("hello")
-            .arg("-p")
+        let output = setup_command(&["run", "--", "--word", "hello", "-p"])
             .output()
             .expect("Check not palindrome");
         assert!(output.status.success());
