@@ -18,8 +18,14 @@ fn test_main_empty_input() {
 #[test]
 fn test_main_palindrome_flag() {
     let mut cmd = Command::cargo_bin("text_invert").unwrap();
-    cmd.args(["--word=racecar", "--palindrome"]).assert().success().stdout("racecar is a palindrome\n");
+    cmd.args(["--word=racecar", "--palindrome"])
+        .assert()
+        .success()
+        .stdout("racecar is a palindrome\n");
 
     let mut cmd = Command::cargo_bin("text_invert").unwrap();
-    cmd.args(["--word=hello", "-p"]).assert().success().stdout("hello is not a palindrome\n");
+    cmd.args(["--word=hello", "-p"])
+        .assert()
+        .success()
+        .stdout("hello is not a palindrome\n");
 }

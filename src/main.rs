@@ -27,7 +27,7 @@ fn is_palindrome(word: &str) -> bool {
     let chars: Vec<char> = word.chars().collect();
     let len = chars.len();
     for i in 0..len / 2 {
-        if chars[i].to_ascii_lowercase() != chars[len - 1 - i].to_ascii_lowercase() {
+        if !chars[i].eq_ignore_ascii_case(&chars[len - 1 - i]) {
             return false;
         }
     }
@@ -100,7 +100,10 @@ mod tests {
     fn test_run() {
         assert_eq!(run("hello", false).unwrap(), "olleh");
         assert_eq!(run("rust", false).unwrap(), "tsur");
-        assert_eq!(run("", false).unwrap_err(), "Error: The word cannot be empty.");
+        assert_eq!(
+            run("", false).unwrap_err(),
+            "Error: The word cannot be empty."
+        );
         assert_eq!(run("a", false).unwrap(), "a");
         assert_eq!(run("racecar", true).unwrap(), "racecar is a palindrome");
         assert_eq!(run("hello", true).unwrap(), "hello is not a palindrome");
@@ -142,14 +145,24 @@ mod tests {
 
     #[test]
     fn test_main_palindrome_flag() {
-        let output = setup_command(&["run", "--", "--word", "racecar", "--palindrome"])
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--")
+            .arg("--word")
+            .arg("racecar")
+            .arg("--palindrome")
             .output()
             .expect("Check palindrome");
         assert!(output.status.success());
         let output_str = String::from_utf8_lossy(&output.stdout);
         assert!(output_str.contains("racecar is a palindrome"));
 
-        let output = setup_command(&["run", "--", "--word", "hello", "-p"])
+        let output = Command::new("cargo")
+            .arg("run")
+            .arg("--")
+            .arg("--word")
+            .arg("hello")
+            .arg("-p")
             .output()
             .expect("Check not palindrome");
         assert!(output.status.success());
